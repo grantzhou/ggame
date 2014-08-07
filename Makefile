@@ -61,17 +61,20 @@ else
     CPPFLAGS       += -D_BUILDDATE=\"$(shell date +"%c" | tr '[:lower:]' '[:upper:]' | tr ' :' '__')\"
 endif
 
+
+ARCH=i386
 # ARM Compile
 ifdef ARM
     CPPFLAGS       += -DARM=\"${ARM}\"
+    ARCH=arm
 endif
 
-OBJ_DIR_REL=$(BIN_DIR)/$(ARCH)/$(BIN_SUFFIX)/
-OBJ_DIR=./$(OBJ_DIR_REL)
-BUILD_LIB_DIR=../$(ARCH)/$(BIN_SUFFIX)/$(LIB_DIR)/
-BUILD_BIN_DIR=../$(ARCH)/$(BIN_SUFFIX)/$(BIN_DIR)/
-BUILD_PREFIX_DIR= ../$(ARCH)/$(BIN_SUFFIX)/
-EXT_LIB_DIR = ../3rdParty/lib/$(ARCH)
+OBJ_DIR_REL=./$(ARCH)/$(BIN_SUFFIX)/$(BIN_DIR)/
+OBJ_DIR=$(OBJ_DIR_REL)
+BUILD_LIB_DIR=./$(ARCH)/$(BIN_SUFFIX)/$(LIB_DIR)/
+BUILD_BIN_DIR=./$(ARCH)/$(BIN_SUFFIX)/$(BIN_DIR)/
+BUILD_PREFIX_DIR= ./$(ARCH)/$(BIN_SUFFIX)/
+EXT_LIB_DIR = ./3rdParty/lib/$(ARCH)
 CSOURCES = $(filter %$(CEXT), $(SOURCES))
 HEADERS  = $(filter %$(HEXT), $(SOURCES))
 CPPSOURCES = $(filter %$(CPPEXT), $(SOURCES))

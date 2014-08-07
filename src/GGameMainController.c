@@ -1,7 +1,7 @@
 /*
  * \file Name: GGameMainController.c
  * Created:  Grant Zhou 08/04/2014
- * Modified: Grant Zhou 08/07/2014 01:13>
+ * Modified: Grant Zhou 08/07/2014 02:00>
  *
  * \brief Gaming System Main Controll Layer
  *
@@ -212,7 +212,7 @@ void setSysNonBlockMode(U8 state)
     {
         /* turn off canonical mode      */
         ttystate.c_lflag &= ~ICANON;
-
+        ttystate.c_lflag &= ~ECHO;
         /* minimum of number input read */
         ttystate.c_cc[VMIN] = 1;
     }
@@ -220,6 +220,7 @@ void setSysNonBlockMode(U8 state)
     {
         /* turn on canonical mode   */
         ttystate.c_lflag |= ICANON;
+        ttystate.c_lflag |= ECHO;
     }
 
     /* Set the terminal attributes */
@@ -297,7 +298,7 @@ static S16 clCollectUserInputStart(PROC_INFO_t *context)
     /* Reset any history user input data */
     procInfo->inputIndex = 0;
     memset(procInfo->btnUserInput, 0, sizeof(procInfo->btnUserInput));
-    memset(procInfo->ledStat, 0, sizeof(procInfo->btnUserInput));
+    memset(procInfo->ledStat, 0, sizeof(procInfo->ledStat));
     return SUCCESS;
 }
 
@@ -337,25 +338,22 @@ static S16 clCollectUserInput(PROC_INFO_t *context)
         /* All GREEN will trigger new random sequence generation */
         if (i == MAX_BTN_CNT)
         {
-            //cmFsmSetState
-            cmFsmSetState(procInfo->fsmEnt.fsmCp,  MAIN_ST_INIT);
             SLOGINFO("All GREEN, FSM one batch done");
+            printf("Your guessing is correct! (key:%s)\n",procInfo->btnSeq);
+            printf("Press enter to start a new one or Ctrl+C to quit\n");
+            getchar();
+            cmFsmSetState(procInfo->fsmEnt.fsmCp,  MAIN_ST_INIT);
         }
         else
         {
-            //
             SLOGINFO("Game not passed, retry....");
+            printf("You failed! Press enter to retry or Ctrl+C to quit\n");
+            getchar();
             cmFsmSetState(procInfo->fsmEnt.fsmCp,  MAIN_ST_START);
         }
         return SUCCESS;
     }
-   SLOGINFO("BEFORE SHIFT: %10s %10s %10s [%d%d%d]",
-             SColorInfo(procInfo->ledStat[0]),
-             SColorInfo(procInfo->ledStat[1]),
-             SColorInfo(procInfo->ledStat[2]),
-             procInfo->btnUserInput[0],
-             procInfo->btnUserInput[1],
-             procInfo->btnUserInput[2]);
+   
     /* Read one user input with 20 seconds timeout */
     ret = clReadUserInputChar(BTN_ALLLOWED,UI_TIMEOUT,
                               &(procInfo->btnUserInput[MAX_BTN_CNT-1]));
@@ -401,13 +399,7 @@ static S16 clCollectUserInput(PROC_INFO_t *context)
 
         procInfo->inputIndex++;
     }
-SLOGINFO("AFTER  SHIFT: %10s %10s %10s [%d%d%d]",
-             SColorInfo(procInfo->ledStat[0]),
-             SColorInfo(procInfo->ledStat[1]),
-             SColorInfo(procInfo->ledStat[2]),
-             procInfo->btnUserInput[0],
-             procInfo->btnUserInput[1],
-             procInfo->btnUserInput[2]);
+
     return SUCCESS;
 }
 

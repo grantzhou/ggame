@@ -1,7 +1,7 @@
 /* 
  * \file Name: CommonFsm.c
  * Created:  Grant Zhou 08/05/2014
- * Modified: Grant Zhou 08/07/2014 00:42>
+ * Modified: Grant Zhou 08/07/2014 01:43>
  * 
  * \brief 
  * 
@@ -134,12 +134,10 @@ S16 cmFsmDriver( CmFsmCp *fsmCp )
 {
     S16 ret = FAILURE;
     CmFsmEntry *fsmRow;
-    U16 state;
     void *context;
     CmFsmEntity *fsmEnt = fsmCp->fsmEnt;
     
     fsmRow = fsmCp->fsmMt + fsmEnt->state*CM_FSM_CTRL_MAX;
-    state = fsmEnt->state;
 
     /* Check if the instance FSM instance timeout */
     ret = cmFsmCheckTmr(fsmCp);
