@@ -1,7 +1,7 @@
 /*
  * \file Name: GGameMainLEDView.c
  * Created:  Grant Zhou 08/04/2014
- * Modified: Grant Zhou 08/07/2014 10:28>
+ * Modified: Grant Zhou 08/07/2014 10:36>
  *
  * \brief Gaming System Main LED View Layer
  *
@@ -26,7 +26,8 @@
  * to the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 #include <stdlib.h>
-#include <stdio.h> <time.h>
+#include <stdio.h>
+#include <time.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/select.h>
