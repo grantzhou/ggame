@@ -98,7 +98,6 @@ MY_LIBS   = -lrt
 ARFLAGS=rc
 
 $(OBJ_DIR)%.o : %.c
-	@echo "Creating "$(dir $@)
 	@mkdir -p $(dir $@)
 	@echo "Building "$@
 	$(CC) -fPIC -o $@ $(CPPFLAGS) -c $<
