@@ -1,7 +1,7 @@
 /*
  * \file Name: GGameMainLEDView.c
  * Created:  Grant Zhou 08/04/2014
- * Modified: Grant Zhou 08/07/2014 01:26>
+ * Modified: Grant Zhou 08/07/2014 10:28>
  *
  * \brief Gaming System Main LED View Layer
  *
@@ -26,8 +26,7 @@
  * to the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 #include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
+#include <stdio.h> <time.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/select.h>
@@ -54,7 +53,7 @@ static const TERM_COLOR_t TERMCOLORS[LED_COLOR_MAX+1]=
     {"LED_COLOR_MAX",  TCOLOR_NRM}
 };
 
-void printHelp();
+
 
 /**
  * VLED Layer Reset terminal
@@ -204,6 +203,32 @@ void printHelp()
            " Orange - indicates that the button pressed was wrong for this position,\n"
            "        but it does appear in a different position.\n"
            " Green  - indicates that the button pressed was correct for this position.\n");
+
+    /* Return position */
+    printf("%s\033[%d;%dH\n",
+           TCOLOR_NRM,
+           VLED_X + VLED_HEIGHT + 1,
+           VLED_Y);
+}
+
+/**
+ * Clean Help information on the screen
+ * @param: None
+ * @return: None
+ */
+void VLED_clearScreen()
+{
+    U8 i = 0;
+    printf("%s\033[%d;%dH \n",
+           TCOLOR_NRM,
+           VLED_X,
+           VLED_Y);
+
+    while(i < 20)
+    {
+        printf("%100s\n","");
+        i++;
+    }
 
     /* Return position */
     printf("%s\033[%d;%dH\n",

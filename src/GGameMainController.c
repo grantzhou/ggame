@@ -1,7 +1,7 @@
 /*
  * \file Name: GGameMainController.c
  * Created:  Grant Zhou 08/04/2014
- * Modified: Grant Zhou 08/07/2014 10:00>
+ * Modified: Grant Zhou 08/07/2014 10:28>
  *
  * \brief Gaming System Main Controll Layer
  *
@@ -44,7 +44,7 @@ CmFsmStatDesc mainFsmDesc[] =
 {
     {"MAIN_ST_INIT",  0      },
     {"MAIN_ST_START", 0      },
-    {"MAIN_ST_INPUT", 0 },
+    {"MAIN_ST_INPUT", 30000  },
     {"MAIN_ST_QUIT",  0      },
 };
 
@@ -161,8 +161,9 @@ int main (int argc, char *argv[])
     setProcInfo(&g_procInfo);
     /* Update LED View  */
     VLED_UpdateView();
-
+    VLED_clearScreen();
     SLOGINFO("Guessing Game System Quit");
+
     return ret;
 }
 
@@ -345,9 +346,7 @@ static S16 clCollectUserInput(PROC_INFO_t *context)
     S8  chrSeq = 0, chrUserInput = 0;
     
     idx = procInfo->inputIndex;
-    SLOGINFO("Current idx: %d MAX: %d --- %d",
-             idx, MAX_BTN_CNT,
-             context->inputIndex);
+
     /**
      * Shift the items in the arrays
      * Array[MAX_BTN_CNT-1] will always save the latest input

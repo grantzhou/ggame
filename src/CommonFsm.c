@@ -1,7 +1,7 @@
 /* 
  * \file Name: CommonFsm.c
  * Created:  Grant Zhou 08/05/2014
- * Modified: Grant Zhou 08/07/2014 01:43>
+ * Modified: Grant Zhou 08/07/2014 10:18>
  * 
  * \brief 
  * 
@@ -116,6 +116,7 @@ S16 cmFsmInstInit(
              "%s-%s", fsmCp->fsmStr, instName);
     fsmEnt->instName[CM_FSM_INST_STR_LEN-1] = 0;
     fsmEnt->timeout = fsmCp->states[initState].timeout;
+    SLOGINFO("Adding %d ms to current time",  fsmEnt->timeout);
     SGetMonotonicTime(&fsmEnt->timestamp);
     SAddMsToTimeStamp(&fsmEnt->timestamp, fsmEnt->timeout);
 
@@ -152,9 +153,11 @@ S16 cmFsmDriver( CmFsmCp *fsmCp )
         fsmEnt->lastState = fsmEnt->state;
         fsmEnt->state    = fsmRow->nextState;
         fsmEnt->timeout = fsmCp->states[fsmRow->nextState].timeout;
-        SGetMonotonicTime(&fsmEnt->timestamp);
-        SAddMsToTimeStamp(&fsmEnt->timestamp, fsmEnt->timeout);
-
+        if (fsmEnt->lastState != fsmEnt->state)
+        {
+            SGetMonotonicTime(&fsmEnt->timestamp);
+            SAddMsToTimeStamp(&fsmEnt->timestamp, fsmEnt->timeout);
+        }
         SLOGINFO("FSM %s, STAT %s-->%s timeout %d", fsmEnt->instName, 
                  fsmCp->states[fsmEnt->lastState].stateStr, 
                  fsmCp->states[fsmEnt->state].stateStr, fsmEnt->timeout);

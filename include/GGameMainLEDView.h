@@ -1,7 +1,7 @@
 /* 
  * \file Name: GGameMainLEDView.h
  * Created:  Grant Zhou 08/05/2014
- * Modified: Grant Zhou 08/07/2014 00:28>
+ * Modified: Grant Zhou 08/07/2014 10:28>
  * 
  * \brief Gaming System Main LED View Layer Include File
  * 
@@ -111,5 +111,11 @@ S16 VLED_CheckLedDriver();
 
 /* Return color string */
 S8 * SColorInfo(U8 color);
+
+/* print help info */
+void printHelp();
+
+/* clean help info */
+void VLED_clearScreen();
 
 #endif

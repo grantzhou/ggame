@@ -1,7 +1,7 @@
 /* 
  * \file Name: CommonInc.h
  * Created:  Grant Zhou 08/04/2014
- * Modified: Grant Zhou 08/06/2014 23:15>
+ * Modified: Grant Zhou 08/07/2014 10:19>
  * 
  * \brief Common Include File
  * 
@@ -200,25 +200,14 @@ INLINE U32 SCompareTimeStamp(TIMESTAMP *tsNow, TIMESTAMP *tsCmp)
 /**
  * Inline function to add micro seconds onto the time stamp
  * @param: ts - the target time stamp
- * @param: tsNow - the time stamp to compare
- * @return: TIME_EQUAL   - same time
- *          TIME_EXPIRED - the 
+ * @param: ms - the micro seconds to add
+ * @return: SUCCESS
  */
 INLINE void SAddMsToTimeStamp(TIMESTAMP *ts, U32 ms)
 {
-    U32 uiMsToAdd = 0;
-    U32 uiResult  = 0;
-    uiMsToAdd = ms * 1000;
-    uiResult = uiMsToAdd + ts->uiMicroseconds;
-
-    if(uiResult < uiMsToAdd)
-    {
-        ts->uiSeconds++;
-        ts->uiMicroseconds -= UINT_MAX;
-        ts->uiMicroseconds += uiMsToAdd; 
-    }
-    else
-        ts->uiMicroseconds += uiMsToAdd;
+    ts->uiSeconds += ((ms + 500) / 1000);    
+    ts->uiMicroseconds +=  ms % 1000;
+    return;
 }
 
 /**
