@@ -1,7 +1,7 @@
 /*
  * \file Name: SysLogging.c
  * Created:  Grant Zhou 08/04/2014
- * Modified: Grant Zhou 08/06/2014 20:15>
+ * Modified: Grant Zhou 08/07/2014 09:43>
  *
  * \brief System common logging functions
  *
@@ -68,13 +68,17 @@ void InitSystemLogging(
     memset(sl_ProcName,0,sizeof(sl_ProcName));
     if (logProcName)
     {
-        strncpy (sl_ProcName, basename(logProcName), MAX_NAME_LEN ) ;
+        strncpy (sl_ProcName, logProcName, MAX_NAME_LEN ) ;
     }
     else
     {
         strcpy (sl_ProcName, "NONE");
     }
 
+    sl_ProcName[ MAX_NAME_LEN-1 ] = 0 ;
+
+    /* Get rid of dir name */
+    strncpy(sl_ProcName, basename(sl_ProcName), MAX_NAME_LEN ) ;
     sl_ProcName[ MAX_NAME_LEN-1 ] = 0 ;
 
     /* Default output to system log */

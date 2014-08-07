@@ -1,7 +1,7 @@
 /* 
  * \file Name: GGameMainController.h
  * Created:  Grant Zhou 08/05/2014
- * Modified: Grant Zhou 08/07/2014 00:26>
+ * Modified: Grant Zhou 08/07/2014 09:39>
  * 
  * \brief Gaming System Main Controll Layer Include File
  * 
@@ -56,6 +56,8 @@ int generateRandSeq(
 S32 keyHit();
 void setSysNonBlockMode(U8 state);
 S16 clReadUserInputChar(S8 *allowedStr,U32 timeout,S8 *outputChr);
+static S32 clInstallSignalHandler(void);
+static void clSignalHandler (int sig, siginfo_t * siginf, void *ptr);
 
 /* FSM Control Layer Functions */
 static S16 clGenerateRandomSeq(PROC_INFO_t *context);
@@ -64,4 +66,6 @@ static S16 clCollectUserInput(PROC_INFO_t *context);
 static S16 clGeneralTimeoutHdl(PROC_INFO_t *context);
 static S16 clFsmQuit(PROC_INFO_t *context);
 S16 clMainFsmDr(void *outputFn, void *context);
+
+
 #endif

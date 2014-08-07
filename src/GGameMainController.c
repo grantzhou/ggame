@@ -1,7 +1,7 @@
 /*
  * \file Name: GGameMainController.c
  * Created:  Grant Zhou 08/04/2014
- * Modified: Grant Zhou 08/07/2014 02:00>
+ * Modified: Grant Zhou 08/07/2014 10:00>
  *
  * \brief Gaming System Main Controll Layer
  *
@@ -35,6 +35,7 @@
 #include <sys/select.h>
 #include <termios.h>
 #include <stddef.h>
+#include <signal.h>
 #include "SysLogging.h"
 #include "GGameMainController.h"
 
@@ -73,17 +74,30 @@ CmFsmEntry mainCtrlFsmMt[MAIN_ST_MAX+1][CM_FSM_CTRL_MAX] =
 };
 
 static char *BTN_ALLLOWED="abc";
-
+static PROC_INFO_t g_procInfo;
+/**
+ * Application Main Entrance
+ * see system logs for detail logs
+ *
+ * @param: not supported yet
+ * @return: SUCCESS/FAILURE
+ *
+ */
 int main (int argc, char *argv[])
 {
-    PROC_INFO_t procInfo;
+    
     CmFsmCp     mainFsmCp;
     S16         ret = FAILURE;
 
-    memset(&procInfo,0,sizeof(procInfo));
+    memset(&g_procInfo,0,sizeof(g_procInfo));
+
+    /* Install necessary signal handler */
+    ret = clInstallSignalHandler();
+    if (ret != SUCCESS) return FAILURE;
+
     SLOGINFO("Initialize Logging .. ");
     InitSystemLogging(argv[0], LOG_INFO, LOG_OUT_SYSLOG);
-    getProcInfo(&procInfo);
+    getProcInfo(&g_procInfo);
 
     SLOGINFO("Initialize FSM Control BLock ..");
     ret = cmFsmCpInit(&mainFsmCp,
@@ -102,7 +116,7 @@ int main (int argc, char *argv[])
 
     SLOGINFO("Initialize FSM Instance ..");
     ret = cmFsmInstInit(&mainFsmCp,
-                        &procInfo,
+                        &g_procInfo,
                         "MAIN",
                         MAIN_ST_INIT);
     if (ret != SUCCESS)
@@ -128,13 +142,25 @@ int main (int argc, char *argv[])
     while(true)
     {
         usleep(1);
+
         ret = cmFsmDriver(&mainFsmCp);
-        if (ret == FAILURE) break;
+        if (ret == FAILURE)
+        {
+            /* Clear and quit */
+            memset(g_procInfo.ledStat, 0, sizeof(g_procInfo.ledStat));
+            break;
+        }
+                
         /* Update Model Data */
-        setProcInfo(&procInfo);
+        setProcInfo(&g_procInfo);
         /* Update LED View  */
         VLED_UpdateView();
     }
+
+    /* Update Model Data */
+    setProcInfo(&g_procInfo);
+    /* Update LED View  */
+    VLED_UpdateView();
 
     SLOGINFO("Guessing Game System Quit");
     return ret;
@@ -460,15 +486,96 @@ S16 clReadUserInputChar(
     }
     return FAILURE;
 }
-
+/**
+ * General Timeout handler
+ *
+ * @param: context  - data context
+ * @return: SUCCESS
+ *
+ */
 static S16 clGeneralTimeoutHdl(PROC_INFO_t *context)
 {
     SLOGERR("General timeout handler triggered");
     cmFsmSetState(context->fsmEnt.fsmCp,  MAIN_ST_QUIT);
     return SUCCESS;
 }
+
+/**
+ * FSM common quit logic
+ *
+ * @param:  context  - data context
+ * @return: FAILURE - return fail to quit
+ *
+ */
 static S16 clFsmQuit(PROC_INFO_t *context)
 {
     SLOGINFO("Quitting FSM ");
     return FAILURE;
+}
+
+/**
+ * Install the necessary signal handlers
+ *
+ * @param: None
+ * @return: SUCCESS - on success
+ *          FAILURE - on fail
+ *
+ */
+static S32 clInstallSignalHandler(void)
+{
+    S32     ret =  FAILURE;
+    struct  sigaction   act;
+
+    memset(&act, 0, sizeof(act));
+    act.sa_flags = SA_SIGINFO | SA_RESTART;
+    act.sa_sigaction = clSignalHandler;
+
+    if((ret = sigaction(SIGTERM,&act,NULL)) < 0)
+    {
+        SLOGERR("Install SIGTERM signal handler failed (%s)",strerror(errno));
+        return FAILURE;
+    }
+
+    if((ret = sigaction(SIGINT,&act,NULL)) < 0)
+    {
+        SLOGERR("Install SIGINT signal handler failed (%s)",strerror(errno));
+        return FAILURE;
+    }
+
+    return SUCCESS;
+}
+
+/**
+ * Signal Handler
+ *
+ * @param: allowedStr  allowed user input
+ * @param: timeout     the maximum waiting time (seconds)
+ * @param: outputChr   output user input if success
+ * @return: SUCCESS - Got one user input
+ *          FAILURE - error happen or time out
+ *
+ */
+static void clSignalHandler (int sig, siginfo_t * siginf, void *ptr)
+{
+    switch(sig)
+    {
+    case SIGTERM:
+    case SIGINT:
+        {
+            SLOGERR("SIGTERM or SIGINT signal received!");
+            /**
+             * It is a bad behavior to run system call directly
+             * this is just a temp solution to reset terminial
+             */
+            system("reset");
+            /* Quit the application */
+            exit(sig);
+            break;
+        }
+    default:
+        {
+            SLOGERR("Unknown signal received!");
+            break;
+        }
+    }
 }
